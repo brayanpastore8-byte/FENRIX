@@ -18,7 +18,7 @@ from firebase_admin import credentials, firestore
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("Fenrix")
 
-TOKEN = os.getenv("DISCORD_TOKEN", "MTUwNzY4NTk3NzkzNjg4Nzg0OA.GcWS3l.5mNilJu1ZTCdkak8qNZ3JnD0TAp75oPQV0T5wg")
+TOKEN = os.getenv("DISCORD_TOKEN", "MTUwNzY4NTk3NzkzNjg4Nzg0OA.GgaPqO.oI3it10UjlyHHeNZzzuBTDA0bMbwMkE-NxeZfY")
 LOGO_URL = "https://cdn.discordapp.com/attachments/1501988744637579304/1508888560789622806/Blue_and_Purple_Modern_Technology_Logo.png?ex=6a172d7a&is=6a15dbfa&hm=0291764fe90911b583c7aab4d1847a70a35198add6f20147e31940060f1492ff"
 BANNER_INFO_URL = "https://cdn.discordapp.com/attachments/1093254707390193774/1507844070632984728/Polished_Digital_Banner_with_Enduring_Aesthetic.png?ex=6a1360b8&is=6a120f38&hm=cd3c6afc149f93dcae9536618aadfce70375dd4bb8ba47cf626beeb8538c8283"
 BANNER_VERIFY_URL = "https://cdn.discordapp.com/attachments/1093254707390193774/1507844993723666532/Black_and_White_Digital_Banner_with_Leaves.png?ex=6a136194&is=6a121014&hm=189eeea36f5c031b664c0f0f29f53bd1bed6baa9ed7af9853aaa7ab75b4fca92"
