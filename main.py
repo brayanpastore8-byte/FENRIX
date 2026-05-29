@@ -30,7 +30,7 @@ PROFANITY_KEYWORDS = [
     "madonna maiala", "madonna troia", "cristo dio", "dio infame", "dioporco", "porcodio",
     "diocane", "porcamadonna", "dio boia", "dio ladro", "dio impestato", "dio lurido",
     "goddamn", "god damn", "jesus christ", "motherfucker", "mother fucker",
-    "cazzo", "puttana", "troia", "vaffanculo", "bastardo", "stronzo", "coglion"
+    "cazzo", "puttana", "troia", "vaffanculo", "bastardo", "stronzo", "coglion", "cazzo", "fuck", "shit", "beach", "cazz"
 ]
 
 # ─────────────────────────────────────────────────────────────────
