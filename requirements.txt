@@ -1,0 +1,6 @@
+discord.py>=2.3.2
+firebase-admin>=6.2.0
+quart>=0.19.4
+aiohttp>=3.9.1
+requests>=2.31.0
+Werkzeug>=3.0.1

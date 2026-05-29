@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% set active_page = 'security' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Security & Protection Panel</h1>
+    <p class="page-subtitle">Configure real-time server defenses, thresholds, and automated actions for abusive events.</p>
+</div>
+
+<div class="security-grid">
+    <!-- Anti-Nuke -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-radiation text-danger"></i> Anti-Nuke Protection
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antinuke_enabled" name="antinuke_enabled" {% if config.get('antinuke_enabled', True) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Strip permissions, kick, or ban admins executing rapid role/channel alterations or deletions.</p>
+
+        <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label" for="antinuke_threshold">Event Threshold (in 5s)</label>
+            <input class="form-input" type="number" id="antinuke_threshold" name="antinuke_threshold" value="{{ config.get('antinuke_threshold', 5) }}" min="3" max="15">
+            <div class="form-hint">Number of channel/role operations within 5 seconds before trigger.</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="antinuke_action">Punishment Action</label>
+            <select class="form-select" id="antinuke_action" name="antinuke_action">
+                <option value="ban" {% if config.get('antinuke_action', 'ban') == 'ban' %}selected{% endif %}>Ban Attacker</option>
+                <option value="kick" {% if config.get('antinuke_action') == 'kick' %}selected{% endif %}>Kick Attacker</option>
+                <option value="timeout" {% if config.get('antinuke_action') == 'timeout' %}selected{% endif %}>Timeout Attacker (7 Days)</option>
+                <option value="strip_roles" {% if config.get('antinuke_action') == 'strip_roles' %}selected{% endif %}>Strip Roles Only</option>
+            </select>
+            <div class="form-hint">Lockdown of default role read/write perms occurs in all choices.</div>
+        </div>
+    </div>
+
+    <!-- Anti-Link / Anti-Spam -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-link text-warning"></i> Anti-Spam (Link Blocker)
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antilink_enabled" name="antilink_enabled" {% if config.get('antilink_enabled', False) or config.get('antispam_enabled', False) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Automatically delete links and restrict member communication. Staff are immune.</p>
+
+        <div class="form-group" style="margin-top: 48px;">
+            <label class="form-label" for="antilink_action">Link Violation Action</label>
+            <select class="form-select" id="antilink_action" name="antilink_action">
+                <option value="timeout" {% if config.get('antilink_action', 'timeout') == 'timeout' %}selected{% endif %}>Timeout (10 Minutes) on 2nd Link</option>
+                <option value="delete" {% if config.get('antilink_action') == 'delete' %}selected{% endif %}>Just Delete Link</option>
+                <option value="kick" {% if config.get('antilink_action') == 'kick' %}selected{% endif %}>Kick Member</option>
+                <option value="ban" {% if config.get('antilink_action') == 'ban' %}selected{% endif %}>Ban Member</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Anti-Profanity / Anti-Message -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-comment-slash text-warning"></i> Anti-Profanity & Blasphemy
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antiprofanity_enabled" name="antiprofanity_enabled" {% if config.get('antiprofanity_enabled', True) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Checks Italian, English, and international profanities. Deletes message instantly.</p>
+
+        <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label" for="antiprofanity_action">Violation Punishment</label>
+            <select class="form-select" id="antiprofanity_action" name="antiprofanity_action">
+                <option value="timeout" {% if config.get('antiprofanity_action', 'timeout') == 'timeout' %}selected{% endif %}>Timeout Member</option>
+                <option value="delete" {% if config.get('antiprofanity_action') == 'delete' %}selected{% endif %}>Just Delete Message</option>
+                <option value="kick" {% if config.get('antiprofanity_action') == 'kick' %}selected{% endif %}>Kick Member</option>
+                <option value="ban" {% if config.get('antiprofanity_action') == 'ban' %}selected{% endif %}>Ban Member</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="antiprofanity_duration">Timeout Duration</label>
+            <select class="form-select" id="antiprofanity_duration" name="antiprofanity_duration">
+                <option value="300" {% if config.get('antiprofanity_duration') == 300 %}selected{% endif %}>5 Minutes</option>
+                <option value="600" {% if config.get('antiprofanity_duration') == 600 %}selected{% endif %}>10 Minutes</option>
+                <option value="2700" {% if config.get('antiprofanity_duration', 2700) == 2700 %}selected{% endif %}>45 Minutes (Default)</option>
+                <option value="3600" {% if config.get('antiprofanity_duration') == 3600 %}selected{% endif %}>1 Hour</option>
+                <option value="86400" {% if config.get('antiprofanity_duration') == 86400 %}selected{% endif %}>1 Day</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Anti-Raid -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-users-slash text-danger"></i> Anti-Raid Gateway
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antiraid_enabled" name="antiraid_enabled" {% if config.get('antiraid_enabled', False) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Automatically lock the server if multiple user accounts join in rapid succession.</p>
+
+        <div class="form-row" style="margin-top: 16px;">
+            <div class="form-group">
+                <label class="form-label" for="antiraid_joins_threshold">Join Threshold</label>
+                <input class="form-input" type="number" id="antiraid_joins_threshold" name="antiraid_joins_threshold" value="{{ config.get('antiraid_joins_threshold', 5) }}" min="2" max="50">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="antiraid_time_threshold">Time Window (s)</label>
+                <input class="form-input" type="number" id="antiraid_time_threshold" name="antiraid_time_threshold" value="{{ config.get('antiraid_time_threshold', 10) }}" min="5" max="60">
+            </div>
+        </div>
+        <div class="form-hint" style="margin-top: -12px;">Example: 5 joins within 10 seconds triggers a default role lockdown.</div>
+    </div>
+
+    <!-- Role Integrity -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-user-shield text-purple"></i> Anti-Role Alterations
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antirole_enabled" name="antirole_enabled" {% if config.get('antirole_enabled', True) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Track changes to server roles. Modifications to role names or permissions count towards the Anti-Nuke event window.</p>
+    </div>
+
+    <!-- Channel Integrity -->
+    <div class="card">
+        <div class="security-card-header">
+            <h3 class="security-card-title">
+                <i class="fa-solid fa-folder-open text-purple"></i> Anti-Channel Alterations
+            </h3>
+            <label class="toggle-switch">
+                <input type="checkbox" id="antichannel_enabled" name="antichannel_enabled" {% if config.get('antichannel_enabled', True) %}checked{% endif %}>
+                <span class="toggle-slider"></span>
+            </label>
+        </div>
+        <p class="security-card-desc">Track modifications to channels (names, topics, overrides). Changes count towards the Anti-Nuke event window.</p>
+    </div>
+</div>
+{% endblock %}

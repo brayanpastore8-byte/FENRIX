@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% set active_page = 'welcome' %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Welcome & Goodbye Messages</h1>
+    <p class="page-subtitle">Configure the welcome and farewell messages when a member joins or leaves the server.</p>
+</div>
+
+<div class="card">
+    <h2 class="card-title">
+        <span class="card-title-icon"><i class="fa-solid fa-door-open text-purple"></i></span>
+        Welcome Announcements
+    </h2>
+    <p class="card-description">Customize welcome messages sent to new members.</p>
+
+    <div class="form-group">
+        <label class="form-label" for="welcome_channel">Welcome Channel</label>
+        <select class="form-select" id="welcome_channel" name="welcome_channel">
+            <option value="">-- Select Channel (Disabled) --</option>
+            {% for ch in guild.text_channels %}
+            <option value="{{ ch.id }}" {% if config.get('welcome_channel')|string == ch.id|string %}selected{% endif %}>#{{ ch.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">The channel where the welcome embed will be posted.</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="welcome_text">Welcome Message</label>
+        <textarea class="form-textarea" id="welcome_text" name="welcome_text" placeholder="Welcome {member} to our server!">{{ config.get('welcome_text', 'Welcome to the server!') }}</textarea>
+        <div class="form-hint">Variables: <strong>{member}</strong> (mention member), <strong>{user}</strong> (username).</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="welcome_banner_url">Welcome Banner URL</label>
+        <input class="form-input" type="text" id="welcome_banner_url" name="welcome_banner_url" value="{{ config.get('welcome_banner_url', '') }}" placeholder="https://example.com/banner.png">
+        <div class="form-hint">A URL to an image banner shown at the top of the welcome embed. Leave blank for default.</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 class="card-title">
+        <span class="card-title-icon"><i class="fa-solid fa-door-closed text-blue"></i></span>
+        Goodbye Announcements
+    </h2>
+    <p class="card-description">Customize leave messages sent when members leave.</p>
+
+    <div class="form-group">
+        <label class="form-label" for="leave_channel">Goodbye Channel</label>
+        <select class="form-select" id="leave_channel" name="leave_channel">
+            <option value="">-- Select Channel (Disabled) --</option>
+            {% for ch in guild.text_channels %}
+            <option value="{{ ch.id }}" {% if config.get('leave_channel')|string == ch.id|string %}selected{% endif %}>#{{ ch.name }}</option>
+            {% endfor %}
+        </select>
+        <div class="form-hint">The channel where the leave embed will be posted.</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="leave_text">Goodbye Message</label>
+        <textarea class="form-textarea" id="leave_text" name="leave_text" placeholder="{user} has left the server.">{{ config.get('leave_text', 'Has left the server.') }}</textarea>
+        <div class="form-hint">Variables: <strong>{member}</strong> (mention member), <strong>{user}</strong> (username).</div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label" for="leave_banner_url">Goodbye Banner URL</label>
+        <input class="form-input" type="text" id="leave_banner_url" name="leave_banner_url" value="{{ config.get('leave_banner_url', '') }}" placeholder="https://example.com/banner.png">
+        <div class="form-hint">A URL to an image banner shown at the top of the goodbye embed. Leave blank for no banner.</div>
+    </div>
+</div>
+{% endblock %}
