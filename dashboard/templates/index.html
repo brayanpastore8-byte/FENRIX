@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}My Servers — Fenrix Dashboard{% endblock %}
+{% block content %}
+<div class="servers-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Select a <span class="gradient-text">Server</span></h1>
+      <p class="page-subtitle">Choose a server you manage to configure Fenrix settings.</p>
+    </div>
+    <a href="{{ bot_invite_url }}" target="_blank" class="btn-primary">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm1 6V4.5a1 1 0 0 0-2 0V7H4.5a1 1 0 0 0 0 2H7v2.5a1 1 0 0 0 2 0V9h2.5a1 1 0 0 0 0-2H9z"/></svg>
+      Add to Server
+    </a>
+  </div>
+
+  {% if guilds %}
+  <div class="guild-grid">
+    {% for guild in guilds %}
+    <div class="guild-card glass {% if guild.bot_in_guild %}guild-present{% else %}guild-absent{% endif %}"
+         {% if guild.bot_in_guild %}onclick="gotoGuild('{{ guild.id }}')"{% endif %}>
+      <div class="guild-card-header">
+        {% if get_guild_icon_url(guild) %}
+        <img src="{{ get_guild_icon_url(guild) }}"
+             alt="{{ guild.name }}"
+             class="guild-icon {% if not guild.bot_in_guild %}guild-icon-absent{% endif %}"/>
+        {% else %}
+        <div class="guild-icon-placeholder {% if not guild.bot_in_guild %}guild-icon-absent{% endif %}">
+          {{ guild.name[0].upper() }}
+        </div>
+        {% endif %}
+        <div class="guild-tag {% if guild.bot_in_guild %}tag-present{% else %}tag-absent{% endif %}">
+          {% if guild.bot_in_guild %}✅ Bot Present{% else %}❌ Bot Absent{% endif %}
+        </div>
+      </div>
+      <div class="guild-info">
+        <h3 class="guild-name">{{ guild.name }}</h3>
+        <p class="guild-members">
+          {% if guild.bot_in_guild %}
+            👥 {{ guild.member_count }} members
+          {% else %}
+            Bot not in this server
+          {% endif %}
+        </p>
+      </div>
+      {% if guild.bot_in_guild %}
+      <div class="guild-manage-btn">Manage →</div>
+      {% else %}
+      <a href="{{ bot_invite_url }}&guild_id={{ guild.id }}" target="_blank"
+         class="guild-invite-btn" onclick="event.stopPropagation()">Invite Bot</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state glass">
+    <div class="empty-icon">🏰</div>
+    <h3>No servers found</h3>
+    <p>You need to be an administrator of a server to manage it here.</p>
+    <a href="{{ bot_invite_url }}" target="_blank" class="btn-primary">Invite Fenrix</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function gotoGuild(guildId) {
+  showLoading();
+  setTimeout(() => { window.location.href = '/dashboard/' + guildId; }, 300);
+}
+</script>
+{% endblock %}

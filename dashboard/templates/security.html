@@ -1,0 +1,204 @@
+{% extends "overview.html" %}
+{% block title %}Security — {{ guild.name }}{% endblock %}
+{% block panel %}
+<div class="panel-section">
+  <h2 class="section-title">🔒 Security Suite</h2>
+  <p class="section-desc">Configure all protection modules. Each module has an independent toggle. Changes apply in real-time via the Save button.</p>
+
+  <!-- ANTI-NUKE -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">💣</span>
+        <div>
+          <h3 class="module-name">Anti-Nuke</h3>
+          <p class="module-desc">Locks down server if 2-3 channels/roles are deleted or created within 3-5 seconds.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antinuke_enabled', True) %}checked{% endif %}
+               onchange="markDirty('antinuke_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Threshold (events)</label>
+          <select class="form-select" onchange="markDirty('antinuke_threshold', parseInt(this.value))">
+            <option value="2" {% if config.get('antinuke_threshold',3)==2 %}selected{% endif %}>2 events</option>
+            <option value="3" {% if config.get('antinuke_threshold',3)==3 %}selected{% endif %}>3 events</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <select class="form-select" onchange="markDirty('antinuke_action', this.value)">
+            <option value="ban"        {% if config.get('antinuke_action','ban')=='ban' %}selected{% endif %}>Ban</option>
+            <option value="kick"       {% if config.get('antinuke_action')=='kick' %}selected{% endif %}>Kick</option>
+            <option value="timeout"    {% if config.get('antinuke_action')=='timeout' %}selected{% endif %}>Timeout (7d)</option>
+            <option value="strip_roles"{% if config.get('antinuke_action')=='strip_roles' %}selected{% endif %}>Strip Roles</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANTI-RAID -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🚨</span>
+        <div>
+          <h3 class="module-name">Anti-Raid</h3>
+          <p class="module-desc">If a user sends 3+ messages in under 3 seconds, the channel locks automatically for 10 minutes. Owner gets a DM with an unlock button.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antiraid_enabled') %}checked{% endif %}
+               onchange="markDirty('antiraid_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ANTI-SPAM LINK -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🔗</span>
+        <div>
+          <h3 class="module-name">Anti-Spam Link</h3>
+          <p class="module-desc">Detects and removes unauthorized links. First offence = warning, repeat = action.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antilink_enabled') %}checked{% endif %}
+               onchange="markDirty('antilink_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-group">
+        <label class="form-label">Action on Repeat Offence</label>
+        <select class="form-select" onchange="markDirty('antilink_action', this.value)">
+          <option value="timeout" {% if config.get('antilink_action','timeout')=='timeout' %}selected{% endif %}>Timeout (10m)</option>
+          <option value="kick"    {% if config.get('antilink_action')=='kick' %}selected{% endif %}>Kick</option>
+          <option value="ban"     {% if config.get('antilink_action')=='ban' %}selected{% endif %}>Ban</option>
+          <option value="delete"  {% if config.get('antilink_action')=='delete' %}selected{% endif %}>Delete Only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANTI-PROFANITY -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🤬</span>
+        <div>
+          <h3 class="module-name">Anti-Profanity</h3>
+          <p class="module-desc">Detects and removes blasphemy and severe profanity. Admins and owners are exempt.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antiprofanity_enabled', True) %}checked{% endif %}
+               onchange="markDirty('antiprofanity_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <select class="form-select" onchange="markDirty('antiprofanity_action', this.value)">
+            <option value="timeout" {% if config.get('antiprofanity_action','timeout')=='timeout' %}selected{% endif %}>Timeout</option>
+            <option value="kick"    {% if config.get('antiprofanity_action')=='kick' %}selected{% endif %}>Kick</option>
+            <option value="ban"     {% if config.get('antiprofanity_action')=='ban' %}selected{% endif %}>Ban</option>
+            <option value="delete"  {% if config.get('antiprofanity_action')=='delete' %}selected{% endif %}>Delete Only</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Timeout Duration (seconds)</label>
+          <input type="number" class="form-input" min="60" max="604800"
+                 value="{{ config.get('antiprofanity_duration', 2700) }}"
+                 onchange="markDirty('antiprofanity_duration', parseInt(this.value))"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANTI-ROLE PROTECTION -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🏷️</span>
+        <div>
+          <h3 class="module-name">Role Protection</h3>
+          <p class="module-desc">Monitors rapid role updates — triggers nuke protection if threshold exceeded.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antirole_enabled') %}checked{% endif %}
+               onchange="markDirty('antirole_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ANTI-CHANNEL PROTECTION -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">📢</span>
+        <div>
+          <h3 class="module-name">Channel Protection</h3>
+          <p class="module-desc">Monitors rapid channel updates — triggers nuke protection if threshold exceeded.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('antichannel_enabled') %}checked{% endif %}
+               onchange="markDirty('antichannel_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- AUTHORIZED MOD ROLES -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">👮</span>
+        <div>
+          <h3 class="module-name">Authorized Staff Roles</h3>
+          <p class="module-desc">Roles that can use moderation commands and are exempt from link/spam filters.</p>
+        </div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="multi-select" id="staffRolesSelect"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+fetch('/api/guild/{{ guild_id }}').then(r => r.json()).then(data => {
+  const staffDiv = document.getElementById('staffRolesSelect');
+  const staffIds = {{ config.get('mod_allowed_roles', []) | tojson }};
+  data.roles.forEach(r => {
+    const label = document.createElement('label');
+    label.className = 'role-checkbox';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = r.id;
+    cb.checked = staffIds.map(String).includes(r.id);
+    cb.onchange = () => {
+      const checked = [...staffDiv.querySelectorAll('input:checked')].map(i => i.value);
+      markDirty('mod_allowed_roles', checked);
+    };
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' @' + r.name));
+    staffDiv.appendChild(label);
+  });
+});
+</script>
+{% endblock %}

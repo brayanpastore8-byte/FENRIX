@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service — Fenrix{% endblock %}
+{% block meta_desc %}Fenrix Terms of Service — Rules and conditions for using the Fenrix Discord bot and dashboard.{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <div class="legal-card glass">
+    <h1 class="legal-title gradient-text">Terms of Service</h1>
+    <p class="legal-updated">Last updated: June 2026</p>
+
+    <section class="legal-section">
+      <h2>1. Acceptance of Terms</h2>
+      <p>By adding Fenrix to your Discord server or using the Fenrix dashboard, you agree to these Terms of Service. If you do not agree, you must remove the bot from your server immediately.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>2. Use of Service</h2>
+      <p>Fenrix is provided for Discord server moderation, security, and management purposes only. You agree not to use Fenrix to:</p>
+      <ul>
+        <li>Violate Discord's Terms of Service or Community Guidelines.</li>
+        <li>Harass, abuse, or harm other users.</li>
+        <li>Attempt to reverse-engineer or exploit the bot or dashboard.</li>
+        <li>Use the bot for illegal activities in your jurisdiction.</li>
+      </ul>
+    </section>
+
+    <section class="legal-section">
+      <h2>3. Data Storage</h2>
+      <p>Fenrix stores the following data to function:</p>
+      <ul>
+        <li>Guild (server) configuration settings (channel IDs, role IDs, feature toggles).</li>
+        <li>Giveaway state data (message ID, end time, participants).</li>
+        <li>Activity counts per hour (no message content is stored).</li>
+      </ul>
+      <p>No personal messages, user content, or private information is stored.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>4. Service Availability</h2>
+      <p>We strive for 99%+ uptime but cannot guarantee uninterrupted service. We reserve the right to suspend or discontinue the service at any time with or without notice.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>5. Limitation of Liability</h2>
+      <p>Fenrix is provided "as is" without warranties of any kind. We are not liable for any damages arising from the use or inability to use Fenrix, including but not limited to server moderation decisions made by automated systems.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>6. Changes to Terms</h2>
+      <p>We may modify these Terms at any time. Continued use of Fenrix after changes constitutes acceptance of the updated Terms.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>7. Contact</h2>
+      <p>For questions, join the <a href="https://discord.gg/2DzQjdE2ve" target="_blank">Fenrix Support Server</a>.</p>
+    </section>
+
+    <div class="legal-footer-links">
+      <a href="/privacy" class="btn-ghost btn-sm">🔏 Privacy Policy</a>
+      <a href="/commands" class="btn-ghost btn-sm">📖 Commands</a>
+      <a href="/" class="btn-primary btn-sm">🏠 Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

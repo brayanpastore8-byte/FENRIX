@@ -1,0 +1,197 @@
+{% extends "overview.html" %}
+{% block title %}Tickets — {{ guild.name }}{% endblock %}
+{% block panel %}
+<div class="panel-section">
+  <h2 class="section-title">🎫 Ticket Suite</h2>
+  <p class="section-desc">Configure ticket categories, staff roles, limits, and automation settings.</p>
+
+  <!-- GLOBAL SETTINGS -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">⚙️</span>
+        <div><h3 class="module-name">Global Settings</h3></div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Max Active Tickets Per User</label>
+          <input type="number" class="form-input" min="1" max="10"
+                 value="{{ config.get('ticket_max_per_user', 1) }}"
+                 onchange="markDirty('ticket_max_per_user', parseInt(this.value))"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🗂️ Ticket Category (Discord Category)</label>
+          <select class="form-select" id="ticketCategory" onchange="markDirty('ticket_category_id', this.value)">
+            <option value="">— Select Category —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🎫 Ticket Panel Channel</label>
+        <select class="form-select" id="ticketPanelCh" onchange="markDirty('ticket_panel_channel', this.value)">
+          <option value="">— Select Channel —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🖼️ Custom Banner URL <span class="badge-optional">Optional</span></label>
+        <input type="url" class="form-input" id="ticketBanner"
+               placeholder="https://example.com/banner.png"
+               value="{{ config.get('ticket_banner_url', '') }}"
+               oninput="markDirty('ticket_banner_url', this.value)"/>
+        <p style="font-size: 0.8rem; color: #a5b4fc; margin-top: 4px; margin-bottom: 0;">
+          * Se non inserisci nulla, verrà mostrato automaticamente il nostro banner ufficiale.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF ROLES -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">👮</span>
+        <div>
+          <h3 class="module-name">Ticket Staff Roles</h3>
+          <p class="module-desc">These roles can use /forceclose, /adduser, /removeuser and handle ticket claim/close buttons.</p>
+        </div>
+      </div>
+    </div>
+    <div class="module-body">
+      <div class="multi-select" id="ticketStaffRoles"></div>
+    </div>
+  </div>
+
+  <!-- LEAVER HANDLING -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🚪</span>
+        <div>
+          <h3 class="module-name">Leaver Safe Handling</h3>
+          <p class="module-desc">What happens when a user leaves the server mid-ticket session.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('ticket_leaver_handling') %}checked{% endif %}
+               onchange="markDirty('ticket_leaver_handling', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <select class="form-select" onchange="markDirty('ticket_leaver_action', this.value)">
+            <option value="alert"     {% if config.get('ticket_leaver_action','alert')=='alert' %}selected{% endif %}>Alert Staff</option>
+            <option value="autoclose" {% if config.get('ticket_leaver_action')=='autoclose' %}selected{% endif %}>Auto-Close</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stale Auto-Close (days)</label>
+          <input type="number" class="form-input" min="0" max="30"
+                 value="{{ config.get('ticket_stale_days', 3) }}"
+                 onchange="markDirty('ticket_stale_days', parseInt(this.value))"
+                 placeholder="0 = disabled"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="toggle-row">
+          <input type="checkbox" {% if config.get('ticket_transcript') %}checked{% endif %}
+                 onchange="markDirty('ticket_transcript', this.checked)"/>
+          <span>Generate transcript on close</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKET CATEGORIES -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">📂</span>
+        <div>
+          <h3 class="module-name">Ticket Categories</h3>
+          <p class="module-desc">Create multiple ticket types with custom labels and messages.</p>
+        </div>
+      </div>
+      <button class="btn-primary btn-sm" onclick="addCategory()">+ Add Category</button>
+    </div>
+    <div class="module-body">
+      <div id="ticketCategoryList">
+        {% for cat in config.get('ticket_categories', []) %}
+        <div class="ticket-cat-item glass">
+          <div class="ticket-cat-name">{{ cat.label }}</div>
+          <div class="ticket-cat-msg">{{ cat.message[:60] }}…</div>
+          <button class="btn-danger btn-xs" onclick="this.parentElement.remove(); saveCategories()">Remove</button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+fetch('/api/guild/{{ guild_id }}').then(r => r.json()).then(data => {
+  const catSel   = document.getElementById('ticketCategory');
+  const panelSel = document.getElementById('ticketPanelCh');
+  const staffDiv = document.getElementById('ticketStaffRoles');
+  const staffIds = {{ config.get('ticket_staff_roles', []) | tojson }};
+
+  data.categories.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.name;
+    if (c.id === '{{ config.get("ticket_category_id","") }}') opt.selected = true;
+    catSel.appendChild(opt);
+  });
+
+  data.channels.forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.id; opt.textContent = '#' + ch.name;
+    if (ch.id === '{{ config.get("ticket_panel_channel","") }}') opt.selected = true;
+    panelSel.appendChild(opt);
+  });
+
+  data.roles.forEach(r => {
+    const label = document.createElement('label');
+    label.className = 'role-checkbox';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = r.id;
+    cb.checked = staffIds.map(String).includes(r.id);
+    cb.onchange = () => {
+      const checked = [...staffDiv.querySelectorAll('input:checked')].map(i => i.value);
+      markDirty('ticket_staff_roles', checked);
+    };
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' @' + r.name));
+    staffDiv.appendChild(label);
+  });
+});
+
+function addCategory() {
+  const label = prompt('Category label (e.g. General Support):');
+  if (!label) return;
+  const message = prompt('Ticket opening message:');
+  if (!message) return;
+
+  const list = document.getElementById('ticketCategoryList');
+  const div  = document.createElement('div');
+  div.className = 'ticket-cat-item glass';
+  div.innerHTML = `<div class="ticket-cat-name">${label}</div>
+    <div class="ticket-cat-msg">${message.slice(0,60)}…</div>
+    <button class="btn-danger btn-xs" onclick="this.parentElement.remove(); saveCategories()">Remove</button>`;
+  div.dataset.label   = label;
+  div.dataset.message = message;
+  list.appendChild(div);
+  saveCategories();
+}
+
+function saveCategories() {
+  const items = [...document.querySelectorAll('.ticket-cat-item')];
+  const cats  = items.map(el => ({ label: el.dataset.label, message: el.dataset.message }));
+  markDirty('ticket_categories', cats);
+}
+</script>
+{% endblock %}

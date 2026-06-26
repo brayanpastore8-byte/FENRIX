@@ -1,0 +1,152 @@
+{% extends "overview.html" %}
+{% block title %}Boost Notifications — {{ guild.name }}{% endblock %}
+{% block panel %}
+<div class="panel-section">
+  <h2 class="section-title">⚡ Boost Notifications</h2>
+  <p class="section-desc">Celebrate and announce every server boost with custom messages, banners, and rewards. Keeps your community engaged and bosters recognized.</p>
+
+  <!-- BOOST ANNOUNCEMENTS -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">💜</span>
+        <div>
+          <h3 class="module-name">Boost Announcements</h3>
+          <p class="module-desc">Posts a public message when someone boosts. Supports custom text, member mention, and banner image.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('boost_log_enabled') %}checked{% endif %}
+               onchange="markDirty('boost_log_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-group">
+        <label class="form-label">📢 Boost Announcement Channel</label>
+        <select class="form-select" id="boostCh" onchange="markDirty('boost_channel', this.value)">
+          <option value="">— Select Channel —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">💬 Boost Message <span class="badge-optional">Optional</span></label>
+        <textarea class="form-textarea" rows="3"
+                  placeholder="🚀 {member} just boosted the server! Thanks for the support! 💜"
+                  oninput="markDirty('boost_message', this.value)">{{ config.get('boost_message', '') }}</textarea>
+        <p style="font-size:0.8rem;color:#a5b4fc;margin-top:4px;margin-bottom:0;">
+          Use <code>{member}</code> for mention, <code>{user}</code> for username, <code>{server}</code> for server name, <code>{count}</code> for total boost count.
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🖼️ Boost Banner URL <span class="badge-optional">Optional</span></label>
+        <input type="url" class="form-input" id="boostBanner"
+               placeholder="https://example.com/boost-banner.gif"
+               value="{{ config.get('boost_banner_url', '') }}"
+               oninput="markDirty('boost_banner_url', this.value)"/>
+        <p style="font-size:0.8rem;color:#a5b4fc;margin-top:4px;margin-bottom:0;">
+          Supports GIF banners. Leave empty to use Fenrix's default boost card.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOST MILESTONE REWARDS -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🏆</span>
+        <div>
+          <h3 class="module-name">Milestone Rewards</h3>
+          <p class="module-desc">Automatically assign special roles when the server hits boost milestones (Tier 1, 2, 3).</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('boost_rewards_enabled') %}checked{% endif %}
+               onchange="markDirty('boost_rewards_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">🥉 Tier 1 Reward Role</label>
+          <select class="form-select" id="boostTier1Role" onchange="markDirty('boost_tier1_role', this.value)">
+            <option value="">— No Role —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🥈 Tier 2 Reward Role</label>
+          <select class="form-select" id="boostTier2Role" onchange="markDirty('boost_tier2_role', this.value)">
+            <option value="">— No Role —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🥇 Tier 3 Reward Role</label>
+        <select class="form-select" id="boostTier3Role" onchange="markDirty('boost_tier3_role', this.value)">
+          <option value="">— No Role —</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOSTER PERKS -->
+  <div class="security-module glass">
+    <div class="module-header">
+      <div class="module-title-row">
+        <span class="module-icon">🎁</span>
+        <div>
+          <h3 class="module-name">Booster Role Assignment</h3>
+          <p class="module-desc">Automatically add a special role to any user who boosts the server, and remove it when they stop boosting.</p>
+        </div>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" {% if config.get('boost_role_enabled') %}checked{% endif %}
+               onchange="markDirty('boost_role_enabled', this.checked)"/>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="module-body">
+      <div class="form-group">
+        <label class="form-label">🎀 Booster Role</label>
+        <select class="form-select" id="boosterRole" onchange="markDirty('booster_role_id', this.value)">
+          <option value="">— Select Role —</option>
+        </select>
+        <p style="font-size:0.8rem;color:#a5b4fc;margin-top:4px;margin-bottom:0;">
+          This role is assigned when someone boosts and removed when the boost expires.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+fetch('/api/guild/{{ guild_id }}').then(r => r.json()).then(data => {
+  const boostChEl = document.getElementById('boostCh');
+  const curBoostCh = '{{ config.get("boost_channel", "") }}';
+  data.channels.forEach(ch => {
+    const opt = document.createElement('option');
+    opt.value = ch.id; opt.textContent = '#' + ch.name;
+    if (ch.id === curBoostCh) opt.selected = true;
+    boostChEl.appendChild(opt);
+  });
+
+  const roleTargets = [
+    { id: 'boosterRole',    cur: '{{ config.get("booster_role_id", "") }}' },
+    { id: 'boostTier1Role', cur: '{{ config.get("boost_tier1_role", "") }}' },
+    { id: 'boostTier2Role', cur: '{{ config.get("boost_tier2_role", "") }}' },
+    { id: 'boostTier3Role', cur: '{{ config.get("boost_tier3_role", "") }}' },
+  ];
+
+  data.roles.forEach(r => {
+    roleTargets.forEach(({ id, cur }) => {
+      const opt = document.createElement('option');
+      opt.value = r.id; opt.textContent = '@' + r.name;
+      if (r.id === cur) opt.selected = true;
+      document.getElementById(id).appendChild(opt.cloneNode(true));
+    });
+  });
+});
+</script>
+{% endblock %}
