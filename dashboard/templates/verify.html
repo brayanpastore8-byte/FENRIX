@@ -1,0 +1,121 @@
+{% extends "overview.html" %}
+{% block title %}Verification — {{ guild.name }}{% endblock %}
+{% block panel %}
+<div class="panel-section">
+  <div class="section-header">
+    <h2 class="section-title">🛡️ Verification Portal</h2>
+    <label class="toggle-switch">
+      <input type="checkbox" id="verifyEnabled" {% if config.get('verify_enabled') %}checked{% endif %}
+             onchange="markDirty('verify_enabled', this.checked)"/>
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+  <p class="section-desc">Configure how users verify in your server. Settings save to the database and take effect instantly.</p>
+
+  <div class="form-section" id="verifySettings">
+    <!-- Channel -->
+    <div class="form-group">
+      <label class="form-label">📢 Verification Channel</label>
+      <select class="form-select" id="verifyChannel" onchange="markDirty('verify_channel', this.value)">
+        <option value="">— Select Channel —</option>
+      </select>
+    </div>
+    <!-- Log Channel -->
+    <div class="form-group">
+      <label class="form-label">📋 Log Channel</label>
+      <select class="form-select" id="verifyLogChannel" onchange="markDirty('verify_log_channel', this.value)">
+        <option value="">— Select Channel —</option>
+      </select>
+    </div>
+    <!-- Roles to Add -->
+    <div class="form-group">
+      <label class="form-label">➕ Roles to Add After Verification</label>
+      <div class="multi-select" id="verifyRolesToAdd"></div>
+    </div>
+    <!-- Roles to Remove -->
+    <div class="form-group">
+      <label class="form-label">➖ Roles to Remove After Verification</label>
+      <div class="multi-select" id="verifyRolesToRemove"></div>
+    </div>
+    <!-- Banner URL -->
+    <div class="form-group">
+      <label class="form-label">🖼️ Custom Banner URL <span class="badge-optional">Optional</span></label>
+      <input type="url" class="form-input" id="verifyBanner"
+             placeholder="https://example.com/banner.png"
+             value="{{ config.get('verify_banner_url', '') }}"
+             oninput="markDirty('verify_banner_url', this.value)"/>
+      <p style="font-size: 0.8rem; color: #a5b4fc; margin-top: 4px; margin-bottom: 0;">
+        * Se non inserisci nulla, verrà mostrato automaticamente il nostro banner ufficiale.
+      </p>
+    </div>
+
+    <!-- Method -->
+    <div class="form-group">
+      <label class="form-label">🔐 Verification Method</label>
+      <div class="method-cards">
+        <div class="method-card {% if config.get('verify_method','standard') == 'standard' %}active{% endif %}"
+             onclick="selectMethod('standard')">
+          <div class="method-icon">✅</div>
+          <div class="method-name">Standard</div>
+          <div class="method-desc">Cross-references users against the Discord global trust network. Fast and seamless.</div>
+        </div>
+        <div class="method-card {% if config.get('verify_method') == 'captcha' %}active{% endif %}"
+             onclick="selectMethod('captcha')">
+          <div class="method-icon">🧩</div>
+          <div class="method-name">Advanced Captcha</div>
+          <div class="method-desc">Generates a dynamic captcha in DM with distorted multi-colored lines and noise. Blocks OCR/AI bots.</div>
+        </div>
+      </div>
+      <input type="hidden" id="verifyMethod" value="{{ config.get('verify_method','standard') }}"/>
+    </div>
+  </div>
+</div>
+
+<script>
+function selectMethod(m) {
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('verifyMethod').value = m;
+  markDirty('verify_method', m);
+}
+
+// Load guild data
+fetch('/api/guild/{{ guild_id }}').then(r => r.json()).then(data => {
+  const selCh  = document.getElementById('verifyChannel');
+  const selLog = document.getElementById('verifyLogChannel');
+  const addDiv = document.getElementById('verifyRolesToAdd');
+  const remDiv = document.getElementById('verifyRolesToRemove');
+
+  data.channels.forEach(ch => {
+    [selCh, selLog].forEach(sel => {
+      const opt = document.createElement('option');
+      opt.value = ch.id; opt.textContent = '#' + ch.name;
+      if (ch.id === '{{ config.get("verify_channel","") }}' && sel === selCh) opt.selected = true;
+      if (ch.id === '{{ config.get("verify_log_channel","") }}' && sel === selLog) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  });
+
+  const addIds = {{ config.get('verify_roles_to_add', []) | tojson }};
+  const remIds = {{ config.get('verify_roles_to_remove', []) | tojson }};
+
+  data.roles.forEach(r => {
+    [{ el: addDiv, arr: addIds, key: 'verify_roles_to_add' },
+     { el: remDiv, arr: remIds, key: 'verify_roles_to_remove' }].forEach(({ el, arr, key }) => {
+      const label = document.createElement('label');
+      label.className = 'role-checkbox';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.value = r.id;
+      cb.checked = arr.map(String).includes(r.id);
+      cb.onchange = () => {
+        const checked = [...el.querySelectorAll('input:checked')].map(i => i.value);
+        markDirty(key, checked);
+      };
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(' @' + r.name));
+      el.appendChild(label);
+    });
+  });
+});
+</script>
+{% endblock %}

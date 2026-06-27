@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — Fenrix{% endblock %}
+{% block meta_desc %}Fenrix Privacy Policy — How we collect, use, and protect your data.{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <div class="legal-card glass">
+    <h1 class="legal-title gradient-text">Privacy Policy</h1>
+    <p class="legal-updated">Last updated: June 2026</p>
+
+    <section class="legal-section">
+      <h2>1. Introduction</h2>
+      <p>This Privacy Policy explains how Fenrix collects, uses, and protects information when you use the Fenrix Discord bot or its web dashboard. We are committed to your privacy and handle all data responsibly.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>2. Information We Collect</h2>
+      <h3>From Discord OAuth2 Login</h3>
+      <p>When you log in via "Login with Discord", we receive:</p>
+      <ul>
+        <li>Your Discord user ID, username, and avatar hash.</li>
+        <li>The list of servers you manage (used to show your server list on the dashboard).</li>
+      </ul>
+      <p>This data is stored <strong>only in your browser session</strong> and is cleared when you log out.</p>
+
+      <h3>From Guild Configuration</h3>
+      <p>When a server administrator configures Fenrix via the dashboard, we store:</p>
+      <ul>
+        <li>Channel IDs (for verification, logs, tickets, welcome, etc.)</li>
+        <li>Role IDs (for verification roles, staff roles, auto-roles, etc.)</li>
+        <li>Feature toggle states (anti-nuke, anti-raid, etc.)</li>
+        <li>Custom text fields (welcome messages, ticket descriptions).</li>
+      </ul>
+      <p>We do <strong>not</strong> store message content, user DMs, or any personal communications.</p>
+
+      <h3>Activity Data</h3>
+      <p>Fenrix logs event counts per hour (e.g., "3 moderation events at 14:00"). This contains no user content and is purged after 48 hours.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>3. How We Use Your Data</h2>
+      <ul>
+        <li>To operate the Fenrix dashboard and authenticate your session.</li>
+        <li>To apply your server configuration settings to the bot in real-time.</li>
+        <li>To display activity statistics on the Overview page.</li>
+      </ul>
+      <p>We do not sell, share, or rent your data to third parties.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>4. Data Storage &amp; Security</h2>
+      <p>Configuration data is stored in a secure database (Firebase Firestore or local JSON). Session data is encrypted using a server-side secret key. We use HTTPS for all web traffic on the production dashboard.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>5. Data Deletion</h2>
+      <p>To delete all data associated with your server, kick Fenrix from your server and open a ticket in the <a href="https://discord.gg/2DzQjdE2ve" target="_blank">Support Server</a>. All configuration data will be removed within 7 days.</p>
+    </section>
+
+    <section class="legal-section">
+      <h2>6. Third-Party Services</h2>
+      <p>Fenrix uses the following third-party services:</p>
+      <ul>
+        <li><strong>Discord API</strong> — Authentication, guild data, and bot functionality.</li>
+        <li><strong>Google Firebase</strong> — Persistent database storage (optional).</li>
+        <li><strong>QuickChart.io</strong> — Chart image generation (no personal data is sent).</li>
+      </ul>
+    </section>
+
+    <section class="legal-section">
+      <h2>7. Contact</h2>
+      <p>For privacy concerns, join the <a href="https://discord.gg/2DzQjdE2ve" target="_blank">Fenrix Support Server</a> and open a ticket.</p>
+    </section>
+
+    <div class="legal-footer-links">
+      <a href="/terms" class="btn-ghost btn-sm">📄 Terms of Service</a>
+      <a href="/commands" class="btn-ghost btn-sm">📖 Commands</a>
+      <a href="/" class="btn-primary btn-sm">🏠 Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
